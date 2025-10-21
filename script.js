@@ -2,31 +2,28 @@ let map, directionsService, directionsRenderer;
 const waypoints = [];
 const markers = [];
 
-window.initMap = async function () {
-  // Chargement de la carte
+window.initMap = function() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 45.5017, lng: -73.5673 },
-    zoom: 10,
-    mapId: "DEMO_MAP_ID",
+    zoom: 10
   });
 
-  // Initialisation des services
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({ map });
 
-  // Récupération des nouveaux composants <gmpx-place-autocomplete>
-  const startInput = document.getElementById("start");
-  const waypointInput = document.getElementById("waypoint");
+  // Récupérer les composants gmpx
+  const startElement = document.getElementById("start");
+  const waypointElement = document.getElementById("waypoint");
 
-  // Ces composants génèrent un événement "gmpx-placechange"
-  startInput.addEventListener("gmpx-placechange", () => {
-    const place = startInput.value;
-    if (place) addMarker(place, "green");
+  // Ajouter un listener pour récupérer la valeur saisie
+  startElement.addEventListener("gmpx-placechange", () => {
+    const address = startElement.value;
+    if (address) addMarker(address, "green");
   });
 
-  waypointInput.addEventListener("gmpx-placechange", () => {
-    const place = waypointInput.value;
-    if (place) addMarker(place, "blue");
+  waypointElement.addEventListener("gmpx-placechange", () => {
+    const address = waypointElement.value;
+    if (address) addMarker(address, "blue");
   });
 };
 
