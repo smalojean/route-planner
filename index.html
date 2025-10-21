@@ -5,8 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Planificateur de route</title>
   <style>
+    body { margin: 0; font-family: sans-serif; }
     #map { height: 90vh; width: 100%; }
-    #controls { padding: 10px; background: #fff; }
+    #controls {
+      padding: 10px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    input { padding: 6px; width: 250px; margin-right: 5px; }
+    button { padding: 6px 10px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -21,16 +31,32 @@
   <script>
     let map, directionsService, directionsRenderer;
     const waypoints = [];
-    const markers = []; // pour suivre les marqueurs créés
+    const markers = [];
     const geocoder = new google.maps.Geocoder();
+    let autocompleteStart, autocompleteWaypoint;
 
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 45.5017, lng: -73.5673 }, // Montréal
         zoom: 10
       });
+
       directionsService = new google.maps.DirectionsService();
       directionsRenderer = new google.maps.DirectionsRenderer({ map });
+
+      // 🔹 Initialisation de l'autocomplétion
+      const options = {
+        fields: ["formatted_address", "geometry", "name"],
+        componentRestrictions: { country: "ca" } // optionnel : limite au Canada
+      };
+      autocompleteStart = new google.maps.places.Autocomplete(
+        document.getElementById("start"),
+        options
+      );
+      autocompleteWaypoint = new google.maps.places.Autocomplete(
+        document.getElementById("waypoint"),
+        options
+      );
     }
 
     function addMarker(address, color = "red") {
@@ -69,18 +95,19 @@
 
     document.getElementById("calc").onclick = () => {
       const origin = document.getElementById("start").value.trim();
-      if (!origin || waypoints.length === 0) return alert("Ajoute une adresse !");
+      if (!origin || waypoints.length === 0)
+        return alert("Ajoute une adresse de départ et au moins une étape !");
+      
       // Effacer anciens itinéraires
       directionsRenderer.setDirections({ routes: [] });
-      // Effacer anciens marqueurs (sauf le départ)
+      // Effacer anciens marqueurs
       markers.forEach(m => m.setMap(null));
       markers.length = 0;
-      // Ajouter marqueur du départ
       addMarker(origin, "green");
 
       directionsService.route({
         origin,
-        destination: origin, // revient au départ
+        destination: origin,
         waypoints,
         travelMode: google.maps.TravelMode.DRIVING,
         optimizeWaypoints: true
@@ -95,10 +122,10 @@
     };
   </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&loading=async"async defer>
+  <!-- ⚠️ Important : ajouter `libraries=places` pour l'autocomplétion -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&libraries=places&loading=async"
+    async defer>
   </script>
-  
 </body>
 </html>
-
-  
