@@ -8,8 +8,12 @@
 </head>
 <body>
   <div id="controls">
-    <input id="start" placeholder="Adresse de départ" />
-    <input id="waypoint" placeholder="Ajouter une étape" />
+    <label>Départ :</label>
+    <gmpx-place-autocomplete id="start" placeholder="Adresse de départ" style="width:250px;"></gmpx-place-autocomplete>
+
+    <label>Étape :</label>
+    <gmpx-place-autocomplete id="waypoint" placeholder="Ajouter une étape" style="width:250px;"></gmpx-place-autocomplete>
+
     <button id="add">Ajouter</button>
     <button id="calc">Calculer la route</button>
 
@@ -18,9 +22,12 @@
 
   <div id="map"></div>
 
-  <script src="script.js"></script>
+  <script src="script.js" type="module"></script>
+
+  <!-- Nouvelle méthode de chargement (2025) -->
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&libraries=places&loading=async"
+    type="module"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&libraries=routes,places,marker&loading=async"
     async>
   </script>
 </body>

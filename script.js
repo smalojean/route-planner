@@ -1,49 +1,56 @@
 let map, directionsService, directionsRenderer;
 const waypoints = [];
 const markers = [];
-let geocoder, autocompleteStart, autocompleteWaypoint;
 
-window.initMap = function () {
+window.initMap = async function () {
+  // Chargement de la carte
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 45.5017, lng: -73.5673 },
     zoom: 10,
+    mapId: "DEMO_MAP_ID",
   });
 
-  geocoder = new google.maps.Geocoder();
+  // Initialisation des services
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({ map });
 
-  const options = {
-    fields: ["formatted_address", "geometry", "name"],
-    componentRestrictions: { country: "ca" },
-  };
+  // Récupération des nouveaux composants <gmpx-place-autocomplete>
+  const startInput = document.getElementById("start");
+  const waypointInput = document.getElementById("waypoint");
 
-  autocompleteStart = new google.maps.places.Autocomplete(
-    document.getElementById("start"),
-    options
-  );
-  autocompleteWaypoint = new google.maps.places.Autocomplete(
-    document.getElementById("waypoint"),
-    options
-  );
+  // Ces composants génèrent un événement "gmpx-placechange"
+  startInput.addEventListener("gmpx-placechange", () => {
+    const place = startInput.value;
+    if (place) addMarker(place, "green");
+  });
+
+  waypointInput.addEventListener("gmpx-placechange", () => {
+    const place = waypointInput.value;
+    if (place) addMarker(place, "blue");
+  });
 };
 
-function addMarker(address, color = "red") {
+// ✅ Nouvelle méthode pour créer un marqueur avec AdvancedMarkerElement
+async function addMarker(address, color = "red") {
+  const geocoder = new google.maps.Geocoder();
   geocoder.geocode({ address }, (results, status) => {
-    if (status === "OK") {
+    if (status === "OK" && results[0]) {
       const position = results[0].geometry.location;
-      const marker = new google.maps.Marker({
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
         position,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: color,
-          fillOpacity: 1,
-          strokeWeight: 1,
-          strokeColor: "#333",
-        },
+        title: address,
       });
+
+      // Ajout d’un style personnalisé (cercle coloré)
+      const pin = new google.maps.marker.PinElement({
+        background: color,
+        borderColor: "#333",
+        glyphColor: "white",
+      });
+      marker.content = pin.element;
+
       markers.push(marker);
       map.setCenter(position);
     } else {
@@ -127,6 +134,7 @@ function getDragAfterElement(container, y) {
   ).element;
 }
 
+// Bouton "Ajouter"
 document.getElementById("add").onclick = () => {
   const addr = document.getElementById("waypoint").value.trim();
   if (addr) {
@@ -137,13 +145,14 @@ document.getElementById("add").onclick = () => {
   }
 };
 
+// Bouton "Calculer la route"
 document.getElementById("calc").onclick = () => {
   const origin = document.getElementById("start").value.trim();
   if (!origin || waypoints.length === 0)
     return alert("Ajoute une adresse de départ et au moins une étape !");
 
   directionsRenderer.setDirections({ routes: [] });
-  markers.forEach((m) => m.setMap(null));
+  markers.forEach((m) => (m.map = null));
   markers.length = 0;
   addMarker(origin, "green");
 
