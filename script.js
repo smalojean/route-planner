@@ -164,3 +164,22 @@ document.getElementById("calc").onclick = () => {
     }
   );
 };
+
+// Bouton "Ouvrir dans Google Maps"
+document.getElementById("openInMaps").onclick = () => {
+  const origin = document.getElementById("start").value.trim();
+  if (!origin || waypoints.length === 0) {
+    alert("Ajoute une adresse de départ et au moins une étape !");
+    return;
+  }
+
+  // On utilise la même adresse comme destination pour boucler le trajet
+  const destination = origin;
+  const waypointAddresses = waypoints.map(wp => encodeURIComponent(wp.location)).join("|");
+
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${waypointAddresses}`;
+
+  // Ouvre dans un nouvel onglet (ou l'app Google Maps si mobile)
+  window.open(mapsUrl, "_blank");
+};
+
