@@ -5,7 +5,8 @@ const markers = [];
 window.initMap = function() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 45.5017, lng: -73.5673 },
-    zoom: 10
+    zoom: 10,
+    mapId: "4a43183752a21d8a926d2b2f"
   });
 
   directionsService = new google.maps.DirectionsService();
