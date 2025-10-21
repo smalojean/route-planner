@@ -11,11 +11,10 @@ window.initMap = function() {
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({ map });
 
-  // Récupérer les composants gmpx
+  // Exemple avec les nouveaux composants PlaceAutocompleteElement
   const startElement = document.getElementById("start");
   const waypointElement = document.getElementById("waypoint");
 
-  // Ajouter un listener pour récupérer la valeur saisie
   startElement.addEventListener("gmpx-placechange", () => {
     const address = startElement.value;
     if (address) addMarker(address, "green");
