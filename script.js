@@ -11,20 +11,14 @@ window.initMap = function() {
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({ map });
 
-  // Exemple avec les nouveaux composants PlaceAutocompleteElement
-  const startElement = document.getElementById("start");
-  const waypointElement = document.getElementById("waypoint");
+  // Autocomplete sur input classique
+  const startInput = document.getElementById("start");
+  const waypointInput = document.getElementById("waypoint");
 
-  startElement.addEventListener("gmpx-placechange", () => {
-    const address = startElement.value;
-    if (address) addMarker(address, "green");
-  });
-
-  waypointElement.addEventListener("gmpx-placechange", () => {
-    const address = waypointElement.value;
-    if (address) addMarker(address, "blue");
-  });
+  new google.maps.places.Autocomplete(startInput, { componentRestrictions: { country: "ca" } });
+  new google.maps.places.Autocomplete(waypointInput, { componentRestrictions: { country: "ca" } });
 };
+
 
 // ✅ Nouvelle méthode pour créer un marqueur avec AdvancedMarkerElement
 async function addMarker(address, color = "red") {
