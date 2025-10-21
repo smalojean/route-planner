@@ -21,6 +21,8 @@
   <script>
     let map, directionsService, directionsRenderer;
     const waypoints = [];
+    const markers = []; // pour suivre les marqueurs créés
+    const geocoder = new google.maps.Geocoder();
 
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
@@ -31,18 +33,51 @@
       directionsRenderer = new google.maps.DirectionsRenderer({ map });
     }
 
+    function addMarker(address, color = "red") {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK") {
+          const position = results[0].geometry.location;
+          const marker = new google.maps.Marker({
+            map,
+            position,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: color,
+              fillOpacity: 1,
+              strokeWeight: 1,
+              strokeColor: "#333"
+            }
+          });
+          markers.push(marker);
+          map.setCenter(position);
+        } else {
+          alert("Adresse non trouvée : " + address);
+        }
+      });
+    }
+
     document.getElementById("add").onclick = () => {
-      const addr = document.getElementById("waypoint").value;
+      const addr = document.getElementById("waypoint").value.trim();
       if (addr) {
         waypoints.push({ location: addr });
+        addMarker(addr, "blue");
         alert("Ajouté : " + addr);
         document.getElementById("waypoint").value = "";
       }
     };
 
     document.getElementById("calc").onclick = () => {
-      const origin = document.getElementById("start").value;
+      const origin = document.getElementById("start").value.trim();
       if (!origin || waypoints.length === 0) return alert("Ajoute une adresse !");
+      // Effacer anciens itinéraires
+      directionsRenderer.setDirections({ routes: [] });
+      // Effacer anciens marqueurs (sauf le départ)
+      markers.forEach(m => m.setMap(null));
+      markers.length = 0;
+      // Ajouter marqueur du départ
+      addMarker(origin, "green");
+
       directionsService.route({
         origin,
         destination: origin, // revient au départ
@@ -60,8 +95,10 @@
     };
   </script>
 
-  <!-- Remplacez YOUR_API_KEY par "AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M", votre clé API Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&loading=async"async defer>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqRMSN-XtN4CSUXYIoJj59cv4HvS9Fj4M&callback=initMap&loading=async"async defer>
   </script>
+  
 </body>
 </html>
+
+  
