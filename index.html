@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planificateur de route</title>
+  <style>
+    #map { height: 90vh; width: 100%; }
+    #controls { padding: 10px; background: #fff; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <input id="start" placeholder="Adresse de départ" />
+    <input id="waypoint" placeholder="Ajouter une étape" />
+    <button id="add">Ajouter</button>
+    <button id="calc">Calculer la route</button>
+  </div>
+  <div id="map"></div>
+
+  <script>
+    let map, directionsService, directionsRenderer;
+    const waypoints = [];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 45.5017, lng: -73.5673 }, // Montréal
+        zoom: 10
+      });
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map });
+    }
+
+    document.getElementById("add").onclick = () => {
+      const addr = document.getElementById("waypoint").value;
+      if (addr) {
+        waypoints.push({ location: addr });
+        alert("Ajouté : " + addr);
+        document.getElementById("waypoint").value = "";
+      }
+    };
+
+    document.getElementById("calc").onclick = () => {
+      const origin = document.getElementById("start").value;
+      if (!origin || waypoints.length === 0) return alert("Ajoute une adresse !");
+      directionsService.route({
+        origin,
+        destination: origin, // revient au départ
+        waypoints,
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: true
+      }, (res, status) => {
+        if (status === "OK") {
+          directionsRenderer.setDirections(res);
+          console.log("Ordre optimisé :", res.routes[0].waypoint_order);
+        } else {
+          alert("Erreur : " + status);
+        }
+      });
+    };
+  </script>
+
+  <!-- Remplacez YOUR_API_KEY par votre clé API Google Maps -->
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+  </script>
+</body>
+</html>
